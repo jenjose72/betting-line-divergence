@@ -1,0 +1,10 @@
+{
+  "_note": "SYNTHETIC TEST FIXTURE, not real match data. Stands in for the real minute-by-minute event timeline that events_producer.py will pull from API-Football in a later branch. Shaped like a plausible 0-3 away win to exercise the interpolation model end to end.",
+  "events": [
+    { "minute": 23, "type": "Goal", "team": "Away" },
+    { "minute": 30, "type": "Yellow Card", "team": "Home" },
+    { "minute": 41, "type": "Goal", "team": "Away" },
+    { "minute": 65, "type": "Substitution", "team": "Home" },
+    { "minute": 77, "type": "Goal", "team": "Away" }
+  ]
+}
