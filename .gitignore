@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Env / secrets
+.env
+*.env.local
+
+# Data pulled from football-data.co.uk / API-Football
+data/raw/
+data/interim/
+*.csv
+!data/.gitkeep
+
+# Docker volumes
+docker/volumes/
+
+# Editors / tooling
+.DS_Store
+.idea/
+.vscode/
+.claude/
+
+# Spark
+spark-warehouse/
+derby.log
+metastore_db/
