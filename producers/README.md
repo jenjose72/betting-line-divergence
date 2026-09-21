@@ -6,6 +6,7 @@
 - `find_fixture.py` — looks up an API-Football fixture id by team + date.
 - `events_producer.py` — CLI that fetches a match's real event timeline from API-Football (caching to `data/interim/events/`, gitignored, to stay well under the free tier's ~100 req/day) and replays it onto the `match-events` Kafka topic. Unit tested against a real captured API response in `tests/test_events_normalization.py`.
 - `fixtures/sample_match_events.json` — a **synthetic** event timeline, now only used as `odds_producer.py`'s default when `--events` isn't overridden; prefer real events from `events_producer.py`/`find_fixture.py` instead.
+- `synthetic_leak_demo.py` — publishes one deliberate, clearly-labeled synthetic test case (`match_id="SYNTH-LEAK-DEMO"`, non-numeric so it can never be mistaken for a real fixture): odds crash sharply with no explaining event, then the goal that would explain a move that size happens 11 minutes later. Validates that `divergence_job.py` actually flags the pattern this whole project exists to catch — see its module docstring for the full reasoning.
 
 ## Getting an API-Football key
 
