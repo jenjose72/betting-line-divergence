@@ -2,6 +2,12 @@ kafka-python-ng==2.2.2
 pandas==2.2.2
 requests==2.32.3
 python-dotenv==1.0.1
-pyspark==3.1.1
+# Note: the Spark cluster containers run 3.1.1 (docker-compose.yml). Pinned
+# higher here only because 3.1.1's bundled cloudpickle can't parse Python
+# 3.12 bytecode -- breaks local unit tests, not the actual cluster job,
+# which runs via spark-submit inside the container using its own Python.
+# The DataFrame API streaming/divergence_job.py uses is stable across this
+# range, so local tests still validate real behavior.
+pyspark==3.5.1
 streamlit==1.38.0
 pytest==8.3.2
