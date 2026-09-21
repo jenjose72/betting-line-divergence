@@ -83,6 +83,18 @@ def main():
     parser.add_argument("--csv", default=str(REPO_ROOT / "data/raw/E0_2324.csv"))
     parser.add_argument("--home", required=True)
     parser.add_argument("--away", required=True)
+    parser.add_argument(
+        "--match-id",
+        default=None,
+        help=(
+            "Canonical match id to publish under, shared with events_producer.py. "
+            "Team names differ between football-data.co.uk and API-Football (e.g. "
+            "'Man City' vs 'Manchester City'), so the two producers can't derive a "
+            "matching id independently -- pass the same explicit id to both (e.g. "
+            "the API-Football fixture id). Defaults to a slug derived from this "
+            "CSV row when omitted, for standalone use."
+        ),
+    )
     parser.add_argument("--events", default=str(DEFAULT_EVENTS_FIXTURE))
     parser.add_argument("--topic", default=os.getenv("KAFKA_TOPIC_ODDS", "odds-ticks"))
     parser.add_argument("--bootstrap-servers", default=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"))
@@ -95,7 +107,7 @@ def main():
     args = parser.parse_args()
 
     row = load_match_row(Path(args.csv), args.home, args.away)
-    match_id = make_match_id(row)
+    match_id = args.match_id or make_match_id(row)
     open_odds = (float(row["B365H"]), float(row["B365D"]), float(row["B365A"]))
     close_odds = (float(row["B365CH"]), float(row["B365CD"]), float(row["B365CA"]))
     events = load_events(Path(args.events))
