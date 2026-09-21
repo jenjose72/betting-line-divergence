@@ -10,4 +10,5 @@ python-dotenv==1.0.1
 # range, so local tests still validate real behavior.
 pyspark==3.5.1
 streamlit==1.38.0
+plotly==5.24.1
 pytest==8.3.2

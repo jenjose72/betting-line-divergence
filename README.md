@@ -41,4 +41,4 @@ Each folder has its own README with specifics.
 
 ## Status
 
-Phase 0 (environment scaffolding) in progress — see [PROJECT_PLAN.md](PROJECT_PLAN.md) for the full 2-week schedule.
+Phases 0-3 (environment, both producers, the streaming job, and the dashboard) are done. Next: Phase 4 (final report + packaging). See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the full 2-week schedule.
