@@ -282,6 +282,17 @@ def main():
         flagged_count = result.filter(F.col("flagged")).count()
         print(f"[divergence-job] batch {batch_id}: scored {result.count()} windows, {flagged_count} flagged", flush=True)
 
+        # score_divergence drops corrupt rows silently; surface how many so a
+        # misbehaving producer shows up here instead of as quietly missing data.
+        dropped_odds = odds.count() - valid_odds(odds).count()
+        dropped_events = events.count() - valid_events(events).count()
+        if dropped_odds or dropped_events:
+            print(
+                f"[divergence-job] batch {batch_id}: skipped {dropped_odds} invalid odds ticks, "
+                f"{dropped_events} invalid events",
+                flush=True,
+            )
+
     # Heartbeat, not a real data source -- see module docstring for why the
     # scoring trigger can't be the odds stream itself.
     heartbeat = spark.readStream.format("rate").option("rowsPerSecond", 1).load()
