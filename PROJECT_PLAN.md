@@ -88,16 +88,18 @@ football-data.co.uk (odds CSV)      API-Football (event timeline JSON)
 
 ---
 
-## 4. Team Roles (3-way split)
+## 4. Team Roles (3-way split, by tool)
 
-- **Role A — Ingestion / Streaming Engineer**
-  Kafka topic design; producer scripts for both feeds with realistic replay timing; API-Football and football-data.co.uk data pulls; interpolation logic for intra-match odds movement.
+Development so far happened collaboratively; this is the team's agreed division of ownership by tool for the remainder of the project (review, testing, and each person's share of the final report), matching the breakdown in the final report's Individual Contribution section.
 
-- **Role B — Analytics / Spark Engineer**
-  Spark Structured Streaming job; windowed join of the two topics; expected-odds-movement baseline model; divergence scoring; writes to Hive/HDFS.
+- **Role A — Ingestion / Streaming Engineer — Jen Jose Jeeson**
+  Kafka topic design; producer scripts for both feeds with realistic replay timing; API-Football and football-data.co.uk data pulls; interpolation logic for intra-match odds movement. Owns `producers/`.
 
-- **Role C — Serving / Integration & Reporting Engineer**
-  Hive schema and queries; live dashboard (lines + divergence flags); README; demo recording; report assembly (pulling technical content from A and B into the final write-up).
+- **Role B — Analytics / Spark Engineer — Praneetha Pillai**
+  Spark Structured Streaming job; windowed join of the two topics; expected-odds-movement baseline model; divergence scoring; writes to Hive/HDFS. Owns `streaming/`.
+
+- **Role C — Serving / Integration & Reporting Engineer — Rupsika Thipparthi**
+  Hive schema and queries; live dashboard (lines + divergence flags); README; demo recording; report assembly. Owns `dashboard/` and the final report.
 
 Roles intentionally overlap near the end — integration testing, report writing, and demo rehearsal are shared work in Phases 3–5.
 
