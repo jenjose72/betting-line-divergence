@@ -77,6 +77,11 @@ EVENT_SHIFTS = {
 }
 DEFAULT_EVENT_SHIFT = 0.01
 
+# Decimal odds must be strictly above 1.0 to mean anything (1.0 pays back
+# only the stake, i.e. a certain outcome); anything at or below it -- or
+# null, from a message from_json couldn't parse -- is a corrupt tick.
+MIN_VALID_DECIMAL_ODDS = 1.0
+
 ODDS_SCHEMA = StructType(
     [
         StructField("match_id", StringType()),
@@ -135,6 +140,28 @@ def parse_events(raw_df: DataFrame) -> DataFrame:
     )
 
 
+def valid_odds(odds_df: DataFrame) -> DataFrame:
+    """Drops ticks that can't be scored. from_json turns an unparseable
+    Kafka message into an all-null row rather than failing, so without this
+    a malformed message becomes a scored window with a null match_id, and a
+    single bad price (e.g. 0.5) yields a bogus implied probability that can
+    flag an otherwise flat window. Null comparisons are falsy in filter(),
+    so the > check also drops null odds."""
+    return odds_df.filter(
+        F.col("match_id").isNotNull()
+        & F.col("window_start").isNotNull()
+        & (F.col("home_odds") > F.lit(MIN_VALID_DECIMAL_ODDS))
+        & (F.col("draw_odds") > F.lit(MIN_VALID_DECIMAL_ODDS))
+        & (F.col("away_odds") > F.lit(MIN_VALID_DECIMAL_ODDS))
+    )
+
+
+def valid_events(events_df: DataFrame) -> DataFrame:
+    """Drops events that can't be placed in a match window. A null `type` is
+    kept -- parse_events already scores it at DEFAULT_EVENT_SHIFT."""
+    return events_df.filter(F.col("match_id").isNotNull() & F.col("window_start").isNotNull())
+
+
 def implied_probs(odds_df: DataFrame) -> DataFrame:
     raw_h = 1 / F.col("home_odds")
     raw_d = 1 / F.col("draw_odds")
@@ -149,8 +176,10 @@ def implied_probs(odds_df: DataFrame) -> DataFrame:
 
 def score_divergence(odds: DataFrame, events: DataFrame) -> DataFrame:
     """Pure function over two already-loaded batch DataFrames -- kept
-    separate from I/O so it's directly unit-testable."""
-    odds = implied_probs(odds)
+    separate from I/O so it's directly unit-testable. Validates its inputs
+    itself, since it reads raw tables that may already hold corrupt rows."""
+    odds = implied_probs(valid_odds(odds))
+    events = valid_events(events)
 
     actual_moves = (
         odds.groupBy("match_id", "window_start")
@@ -252,6 +281,17 @@ def main():
         result.write.mode("overwrite").parquet(scores_path)
         flagged_count = result.filter(F.col("flagged")).count()
         print(f"[divergence-job] batch {batch_id}: scored {result.count()} windows, {flagged_count} flagged", flush=True)
+
+        # score_divergence drops corrupt rows silently; surface how many so a
+        # misbehaving producer shows up here instead of as quietly missing data.
+        dropped_odds = odds.count() - valid_odds(odds).count()
+        dropped_events = events.count() - valid_events(events).count()
+        if dropped_odds or dropped_events:
+            print(
+                f"[divergence-job] batch {batch_id}: skipped {dropped_odds} invalid odds ticks, "
+                f"{dropped_events} invalid events",
+                flush=True,
+            )
 
     # Heartbeat, not a real data source -- see module docstring for why the
     # scoring trigger can't be the odds stream itself.
