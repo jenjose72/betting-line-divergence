@@ -25,6 +25,9 @@ For each match_id × 5-minute window:
 # one-time, after the job has produced at least one Hive-external-table-shaped output:
 cat streaming/hive_tables.sql | docker exec -i linewatch-hive-server beeline -u jdbc:hive2://localhost:10000
 
+# Run the Hive analysis queries after the tables have been created
+docker exec -i linewatch-hive-server beeline -u jdbc:hive2://localhost:10000 < streaming/hive_queries.sql
+
 # the job itself (from the host, once producers have published data to replay):
 docker exec linewatch-spark-master /spark/bin/spark-submit \
   --master spark://spark-master:7077 \
