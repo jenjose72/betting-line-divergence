@@ -5,24 +5,36 @@
 --   cat streaming/hive_queries.sql | docker exec -i linewatch-hive-server beeline -u jdbc:hive2://localhost:10000
 
 -- 1. Row counts in each Hive external table
+-- UNION ALL combines the results into one report without removing rows.
 SELECT 'odds_ticks_raw' AS table_name, COUNT(*) AS row_count
-FROM odds_ticks_raw;
+FROM odds_ticks_raw
+
+UNION ALL
 
 SELECT 'match_events_raw' AS table_name, COUNT(*) AS row_count
-FROM match_events_raw;
+FROM match_events_raw
+
+UNION ALL
 
 SELECT 'divergence_scores' AS table_name, COUNT(*) AS row_count
 FROM divergence_scores;
 
 
 -- 2. Number of matches represented in each table
-SELECT 'odds_ticks_raw' AS table_name, COUNT(DISTINCT match_id) AS match_count
-FROM odds_ticks_raw;
+SELECT 'odds_ticks_raw' AS table_name,
+       COUNT(DISTINCT match_id) AS match_count
+FROM odds_ticks_raw
 
-SELECT 'match_events_raw' AS table_name, COUNT(DISTINCT match_id) AS match_count
-FROM match_events_raw;
+UNION ALL
 
-SELECT 'divergence_scores' AS table_name, COUNT(DISTINCT match_id) AS match_count
+SELECT 'match_events_raw' AS table_name,
+       COUNT(DISTINCT match_id) AS match_count
+FROM match_events_raw
+
+UNION ALL
+
+SELECT 'divergence_scores' AS table_name,
+       COUNT(DISTINCT match_id) AS match_count
 FROM divergence_scores;
 
 
@@ -91,4 +103,3 @@ SELECT
 FROM divergence_scores
 GROUP BY match_id
 ORDER BY max_divergence DESC;
-
