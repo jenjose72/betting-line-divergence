@@ -9,6 +9,9 @@ services:
     environment:
       - ZOOKEEPER_CLIENT_PORT=2181
       - ZOOKEEPER_TICK_TIME=2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
 
   kafka:
     image: confluentinc/cp-kafka:7.6.1
@@ -111,6 +114,8 @@ services:
 
 volumes:
   kafka_data:
+  zookeeper_data:
+  zookeeper_log:
   hadoop_namenode:
   hadoop_datanode:
   hive_metastore_postgresql:
