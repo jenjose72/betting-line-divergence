@@ -30,6 +30,19 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
 
+  # Web UI for browsing topics/messages -- much easier to read on screen
+  # (demos, debugging) than scrolling kafka-console-consumer output.
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: linewatch-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8089:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=line-watch
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
+
   # ---- HDFS ----
   namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
